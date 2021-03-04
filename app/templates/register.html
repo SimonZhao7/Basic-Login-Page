@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block head %}
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+{% endblock %}
+
+{% block body %}
+    <h3>Register Here</h3>
+    <div class="register">
+        <form method="post">
+            <p>Username</p>
+            <input type="text" maxlength="20" name="user" required>
+            <p>Password</p>
+            <input type="password" maxLength="20" name="pass" required>
+            <p>Confirm Password</p>
+            <input type="password" maxLength ="20" name="confirm-pass" required><br/>
+            <p>Email</p>
+            <input type="text" maxlength="100" name="email" required>
+
+            <div class="submit">
+                <input type="submit" value="Register">
+            </div>
+        </form>
+        {% if error != None %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,28 @@
+
+{% extends "base.html" %}
+{% block head %}
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
+{% endblock %}
+{% block body %}
+    <h3>Login</h3>
+    <div class="login">
+        <form method="post">
+            <label>Username</label>
+            <input type="text" id="username" name="user" required><br />
+            <label>Password</label>
+            <input type="password" id="password" name="pass" required><br /><br />
+
+            <div class="submit">
+                <input type="submit" value="Login" id="submit">
+                <a href="{{ url_for('register') }}">Register Here</a><br/>
+                <a href="https://www.google.com">Forgot Password?</a>
+            </div>
+
+        </form>
+            {% if error != None %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+    </div>
+{% endblock %}

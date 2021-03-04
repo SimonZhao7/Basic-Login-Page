@@ -1,0 +1,28 @@
+
+h3{
+    text-align: center;
+    font-size: 18px;
+}
+
+.register {
+  margin: auto;
+  width: 300px;
+  clear: both;
+}
+
+.register input {
+  width: 100%;
+  clear: both;
+  height: 25px;
+}
+
+.submit {
+    margin: 10px;
+    width: 150px;
+    position: relative;
+    left: 65px;
+}
+
+.error {
+    color: red;
+}
