@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <title>Forgot Password</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/forgot.css') }}">
+{% endblock %}
+
+{% block body %}
+    <h3> Forgot Password</h3>
+
+    <div class="forgot">
+        <form method="post">
+            <label>Enter Your Email</label>
+            <input type="email" maxlength="100" id="email" name="email" required><br/>
+            <input type="submit" name="submit" id="submit">
+        </form>
+    </div>
+
+{% endblock %}

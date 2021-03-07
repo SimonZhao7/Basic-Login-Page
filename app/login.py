@@ -1,16 +1,19 @@
 from flask import Flask, redirect, render_template, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager # installed but never used
-
+import os
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+from flask_login import LoginManager  # installed but never used
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///accounts.db'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
+
+sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
 
 @app.route("/")
 def home():
@@ -39,7 +42,7 @@ def login():
             return redirect(url_for('home'))
         else:
             error = '* Username or Password is incorrect.'
-    return render_template('info.html', error=error) # confirl form resubmission error
+    return render_template('login.html', error=error)  # confirm form resubmission error
 
 
 @app.route("/register", methods=["POST", "GET"])
@@ -67,7 +70,7 @@ def register():
             account = Account(email=email, username=username, password=hash_pass)
             db.session.add(account)
             db.session.commit()
-            return redirect(url_for('account_created'))
+            return redirect(url_for('success', message="Success! You have created your account."))
         elif account is not None:
             if username == account.username:
                 error = "* Username already exists."
@@ -78,12 +81,35 @@ def register():
     return render_template('register.html', error=error)
 
 
-@app.route("/created", methods=["POST", "GET"])
-def account_created():
+@app.route('/forgot', methods=["POST", "GET"])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+
+        user = Account.query.filter_by(email=email).first()
+
+        if user is not None:
+            # send an email
+            message = Mail(
+                from_email='botbotoriginal@gmail.com',
+                to_emails=[email],
+                subject='Password Reset',
+                html_content='<p>This is your link to reset your password: <a href="http://127.0.0.1:5000/reset/'
+                             + email + '">Reset Here</a></p> '
+            )
+            # reset/hashed email for security
+            sg.send(message)
+            return redirect(url_for('success', message="Success! An email of confirmation has been sent to you. "
+                                                       "Click on the link attached to change your password."))
+    return render_template('forgot.html')
+
+
+@app.route("/success", methods=["POST", "GET"])
+def success():
     if request.method == "POST":
         return redirect('login')
     else:
-        return render_template('created.html')
+        return render_template('message.html', message=request.args.get('message'))
 
 
 if __name__ == "__main__":

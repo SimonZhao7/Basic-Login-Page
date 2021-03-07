@@ -1,0 +1,22 @@
+h3 {
+    text-align: center;
+}
+
+.forgot{
+    width: 300px;
+    margin: auto;
+    clear: both;
+}
+
+#email {
+    width: 100%;
+    clear: both;
+    height: 25px;
+}
+
+#submit {
+    width: 25%;
+    margin: 15px;
+    position: relative;
+    left: 105px;
+}
