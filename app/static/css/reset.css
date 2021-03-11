@@ -1,0 +1,29 @@
+.login {
+    width: 300px;
+    clear: both;
+    margin: auto;
+}
+
+.login .password, .confirm-pass {
+    width: 100%;
+    clear: both;
+    height: 25px;
+}
+
+.submit {
+    width: 50%;
+    margin: auto;
+    margin: 10px;
+    position: relative;
+    left: 65px;
+}
+
+p {
+    margin-top: 10px;
+    margin-bottom: 0px;
+}
+
+.error {
+    color: red;
+    text-align: center;
+}

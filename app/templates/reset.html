@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <title>Reset Password</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reset.css') }}">
+{% endblock %}
+
+{% block body %}
+
+    <div class="login">
+        <h3>Reset your password</h3>
+        <form method="post">
+            <p>Enter New Password</p>
+            <input type="password" maxlength="20" name="password" class="password"> <br/>
+            <p>Re-enter your new Password</p>
+            <input type="password" maxlength="20" name="confirm-pass" class="confirm-pass"> <br/>
+            <input type="submit" value="Change Password" class="submit">
+        </form>
+    </div>
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+{% endblock %}

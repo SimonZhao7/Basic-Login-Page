@@ -104,6 +104,24 @@ def forgot_password():
     return render_template('forgot.html')
 
 
+@app.route('/reset/<email>', methods=["POST", "GET"])
+def reset(email):
+    error = None
+    if request.method == 'POST':
+        account = Account.query.filter_by(email=email).first()
+
+        if account is not None:
+            password = request.form['password']
+            confirm_pass = request.form['confirm-pass']
+            if password == confirm_pass:
+                pass
+                # update database and send back to home
+            else:
+                error = "* Passowrds do not match"
+    return render_template('reset.html', error=error)
+
+
+
 @app.route("/success", methods=["POST", "GET"])
 def success():
     if request.method == "POST":
