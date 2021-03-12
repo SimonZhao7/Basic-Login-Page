@@ -116,10 +116,13 @@ def reset(email):
             if password == confirm_pass:
                 pass
                 # update database and send back to home
+                account.password = bcrypt.generate_password_hash(password, 10)
+                db.session.commit()
+                return redirect(url_for('success', message="You have successfully changed your password. Click login to"
+                                                           " return to login page."))
             else:
                 error = "* Passowrds do not match"
     return render_template('reset.html', error=error)
-
 
 
 @app.route("/success", methods=["POST", "GET"])
