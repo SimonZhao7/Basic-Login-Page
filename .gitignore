@@ -1,0 +1,5 @@
+venv/
+
+project/accounts.db
+
+project/__pycache__/

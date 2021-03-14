@@ -1,30 +1,12 @@
-from flask import Flask, redirect, render_template, url_for, request, flash
-from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
-import os
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
-from flask_login import LoginManager  # installed but never used
+from project import app, bcrypt, db, sg
+from sendgrid import Mail
+from project.models import Account
+from flask import render_template, request, redirect, url_for
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///accounts.db'
-SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
-
-sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
 
 @app.route("/")
 def home():
     return render_template('home.html')
-
-
-class Account(db.Model):
-    id = db.Column("id", db.Integer, primary_key=True)
-    email = db.Column("email", db.String(100), unique=True, nullable=False)
-    username = db.Column("username", db.String(20), unique=True, nullable=False)
-    password = db.Column("password", db.String(20), unique=False, nullable=False)
 
 
 @app.route("/login", methods=["POST", "GET"])
@@ -35,7 +17,7 @@ def login():
         password = request.form["pass"]
 
         user = Account.query.filter_by(username=username).first()
-        #
+
         if user is None:
             error = '* Username or Password is incorrect'
         elif user.username == username and bcrypt.check_password_hash(user.password, password):
@@ -67,7 +49,8 @@ def register():
             # add info to database
             # redirect to link created account
             hash_pass = bcrypt.generate_password_hash(password, 10)
-            account = Account(email=email, username=username, password=hash_pass)
+            hash_email = bcrypt.generate_password_hash(email, 10)
+            account = Account(email=email, username=username, password=hash_pass, hash_email=str(hash_email))
             db.session.add(account)
             db.session.commit()
             return redirect(url_for('success', message="Success! You have created your account."))
@@ -87,15 +70,15 @@ def forgot_password():
         email = request.form['email']
 
         user = Account.query.filter_by(email=email).first()
-
+        print(user.hash_email)
         if user is not None:
             # send an email
+            link = "http://127.0.0.1:5000/reset/" + user.hash_email
             message = Mail(
                 from_email='botbotoriginal@gmail.com',
                 to_emails=[email],
-                subject='Password Reset',
-                html_content='<p>This is your link to reset your password: <a href="http://127.0.0.1:5000/reset/'
-                             + email + '">Reset Here</a></p> '
+                subject="Password Reset",
+                html_content="This is your link to reset your password (copy and paste whole link): " + link
             )
             # reset/hashed email for security
             sg.send(message)
@@ -108,20 +91,23 @@ def forgot_password():
 def reset(email):
     error = None
     if request.method == 'POST':
-        account = Account.query.filter_by(email=email).first()
+        account = Account.query.filter_by(hash_email=email).first()
 
         if account is not None:
             password = request.form['password']
             confirm_pass = request.form['confirm-pass']
-            if password == confirm_pass:
-                pass
+            if password != confirm_pass:
+                error = "* Passwords do not match"
+            elif bcrypt.check_password_hash(account.password, password):
+                error = "* Password can not be the same as the last password"
+            elif len(password) < 8:
+                error = "* New password is too short"
+            else:
                 # update database and send back to home
                 account.password = bcrypt.generate_password_hash(password, 10)
                 db.session.commit()
                 return redirect(url_for('success', message="You have successfully changed your password. Click login to"
                                                            " return to login page."))
-            else:
-                error = "* Passowrds do not match"
     return render_template('reset.html', error=error)
 
 
@@ -131,8 +117,3 @@ def success():
         return redirect('login')
     else:
         return render_template('message.html', message=request.args.get('message'))
-
-
-if __name__ == "__main__":
-    db.create_all()
-    app.run(debug=True)
